@@ -6,6 +6,25 @@ We'll walk through each of these in detail, roughly in order from the simplest a
 
 If none of these options meet your needs, please [get in touch](XXX)!
 
+---
+
+## First: a note on sensitive or private metadata  
+
+Below, we describe the privacy considerations for each of the available options.
+
+**One approach to handling sensitive metadata is to simply keep it entirely separate.
+With _any_ of these options, you can also choose to drag-and-drop a separate TSV file onto the Auspice visualization.**  
+
+Doing so will enable you to color by any of the values in this extra metadata file, but none of that data ever leaves your local computer.  
+
+#### How to view visualize private metadata  
+1. Create a TSV file with a `strain` or `name` column that matches all the samples in your dataset  
+2. Add your sensitive metadata to the remaining columns  
+3. On your computer, drag and drop the file onto the browser window where Auspice is visualizing your JSON    
+
+_For more help formatting this metadata file, including how to do so using Excel, [see this page](XXX)_
+
+---
 
 ## Option 1: Drag-and-drop web-based visualization  
 
@@ -80,7 +99,7 @@ Community builds are visible to anyone with the URL.
 
 
 ### Option 5: Deploying your own Auspice server
-* **Example:** XXX 
+* **Example:** XXX
 * **Advantages:** Fully-featured Auspice instance, natively hosted on your own domain.  
 * **Limitations:** More technically involved, especially if user authentication is required.
 
