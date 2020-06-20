@@ -13,7 +13,7 @@ def _get_metadata_by_build_name(build_name):
     the Snakemake `expand` function or through string formatting with `.format`.
     """
     if build_name == "global":
-        return rules.download.output.metadata
+        return config["metadata"]
     else:
         return rules.adjust_metadata_regions.output.metadata
 

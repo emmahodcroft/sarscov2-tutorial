@@ -5,22 +5,36 @@ We've created these resources with the goal of enabling Departments of Public He
 
 _If you're looking for the SARS-CoV-2 analyses used for the main Nextstrain builds, please see [this repository instead](https://github.com/nextstrain/ncov)._
 
-## Tutorial overview
+## Overview: complete walkthrough
+### Getting started with analysis  
+_The starting point for this section is a FASTA file with sequence data + a TSV file with metadata. You can also just use our example data to start._
 
-* [Preparing your data](data-prep.md)  
-* [Set up and installation](XXX)  
-* [Orientation: what does Nextstrain actually do, and what are each of these files?](orientation.md)  
-* [Running & troubleshooting a basic analysis](customization.md)  
-* [Visualizing the output with Auspice](visualizing.md)
-* [Interpreting your results]() (more coming soon!)
-* [Writing a narrative to highlight key findings]() (more coming soon!)
-* [Options for sharing your results and managing sensitive metadata](sharing.md)  
+[1. Preparing your data](docs/data-prep.md)  
+[2. Set up and installation](docs/setup.md)  
+[3. Orientation: analysis workflow](docs/orientation-workflow.md)  
+[4. Orientation: which files should I touch?](docs/orientation-files.md)  
+[5. Running & troubleshooting](docs/running.md)   
+[6. Customizing your analysis](docs/customizing-analysis.md)  
+[7. Customizing your visualization](docs/customizing-visualization.md)
 
-## Quickstart  
+### Getting started with visualization & interpretation  
+_The starting point for this section is a JSON file. You can also just use our examples to start._
 
-If you'd prefer, you can also start by running a vanilla analysis on the provided example data and visualizing the output with the [auspice.us](auspice.us) drag-and-drop viewer. If you get stuck at any point, you can find more detailed instructions in the full tutorial outlined above.
+[8. Options for visualizing and sharing results](docs/sharing.md)  
+[9. Interpreting your results](docs/interpretation.md)  
+[10. Writing a narrative to highlight key findings](docs/narratives.md)  
+_11. Case studies: interpreting your data (coming soon!)_  
 
-#### 1. Install
+## Quickstart    
+
+If you'd prefer, you can also start by running a basic analysis on the provided example data and/or visualizing the output with the [auspice.us](auspice.us) drag-and-drop viewer. If you get stuck at any point, you can find more detailed instructions in the full tutorial outlined above.
+
+#### 1. Clone this repository  
+```
+git clone https://github.com/nextstrain/sarscov2-tutorial.git
+```
+
+#### 2. Install augur for bioinformatics
 ```
 python3 -m pip install nextstrain-augur
 ```
@@ -35,16 +49,21 @@ Ubuntu/Debian:
 sudo apt install mafft iqtree raxml fasttree vcftools
 ```
 
-#### 2. Run basic analysis on example data  
-```XXXX```
+#### 3. Run basic analysis on example data  
+```
+sarscov-tutorial$ snakemake --profile ./my-analyses/example
+```
 
 
-#### 3. Visualize your results (or our example output)  
+#### 4. Visualize your results (or our example output)  
 Go to `https://auspice.us` in your browser.
-Drag and drop `./auspice/sarscov2.json` anywhere on the screen.
+Drag and drop `./auspice/sarscov2.json` (or any other JSON in this directory) anywhere on the screen.
+
 Voila!
 
-## Getting help  
+
+## Help  
 
 If something in this tutorial is broken or unclear, please [open an issue](XXX) so we can improve it for everyone.  
+
 If you have a specific question, post a note over at the [discussion board](XXX) -- we're happy to help!

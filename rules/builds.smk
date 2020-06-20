@@ -1,15 +1,3 @@
-rule download:
-    message: "Downloading metadata and fasta files from S3"
-    output:
-        sequences = config["sequences"],
-        metadata = config["metadata"]
-    conda: config["conda_environment"]
-    shell:
-        """
-        aws s3 cp s3://nextstrain-ncov-private/metadata.tsv.gz - | gunzip -cq >{output.metadata:q}
-        aws s3 cp s3://nextstrain-ncov-private/sequences.fasta.gz - | gunzip -cq > {output.sequences:q}
-        """
-
 rule filter:
     message:
         """
@@ -17,8 +5,8 @@ rule filter:
           - excluding strains in {input.exclude}
         """
     input:
-        sequences = rules.download.output.sequences,
-        metadata = rules.download.output.metadata,
+        sequences = config["sequences"],
+        metadata = config["metadata"],
         include = config["files"]["include"],
         exclude = config["files"]["exclude"]
     output:
@@ -47,8 +35,8 @@ rule excluded_sequences:
         Generating fasta file of excluded sequences
         """
     input:
-        sequences = rules.download.output.sequences,
-        metadata = rules.download.output.metadata,
+        sequences = config["sequences"],
+        metadata = config["metadata"],
         include = config["files"]["exclude"]
     output:
         sequences = "results/excluded.fasta"
@@ -94,7 +82,7 @@ rule diagnose_excluded:
     message: "Scanning excluded sequences {input.alignment} for problematic sequences"
     input:
         alignment = rules.align_excluded.output.alignment,
-        metadata = rules.download.output.metadata,
+        metadata = config["metadata"],
         reference = config["files"]["reference"]
     output:
         diagnostics = "results/excluded-sequence-diagnostics.tsv",
@@ -189,7 +177,7 @@ rule diagnostic:
     message: "Scanning aligned sequences {input.alignment} for problematic sequences"
     input:
         alignment = rules.aggregate_alignments.output.alignment,
-        metadata = rules.download.output.metadata,
+        metadata = config["metadata"],
         reference = config["files"]["reference"]
     output:
         diagnostics = "results/sequence-diagnostics.tsv",
@@ -221,7 +209,7 @@ rule refilter:
         """
     input:
         sequences = rules.aggregate_alignments.output.alignment,
-        metadata = rules.download.output.metadata,
+        metadata = config["metadata"],
         exclude = rules.diagnostic.output.to_exclude
     output:
         sequences = "results/aligned-filtered.fasta"
@@ -330,7 +318,7 @@ rule subsample:
         """
     input:
         sequences = rules.mask.output.alignment,
-        metadata = rules.download.output.metadata,
+        metadata = config["metadata"],
         include = config["files"]["include"],
         priorities = get_priorities
     output:
@@ -364,7 +352,7 @@ rule proximity_score:
         """
     input:
         alignment = rules.mask.output.alignment,
-        metadata = rules.download.output.metadata,
+        metadata = config["metadata"],
         reference = config["files"]["reference"],
         focal_alignment = "results/{build_name}/sample-{focus}.fasta"
     output:
@@ -417,7 +405,7 @@ rule adjust_metadata_regions:
         Adjusting metadata for build '{wildcards.build_name}'
         """
     input:
-        metadata = rules.download.output.metadata
+        metadata = config["metadata"]
     output:
         metadata = "results/{build_name}/metadata_adjusted.tsv"
     params:
@@ -538,24 +526,6 @@ rule ancestral:
             --infer-ambiguous 2>&1 | tee {log}
         """
 
-rule haplotype_status:
-    message: "Annotating haplotype status relative to {params.reference_node_name}"
-    input:
-        nt_muts = rules.ancestral.output.node_data
-    output:
-        node_data = "results/{build_name}/haplotype_status.json"
-    log:
-        "logs/haplotype_status_{build_name}.txt"
-    params:
-        reference_node_name = config["reference_node_name"]
-    conda: config["conda_environment"]
-    shell:
-        """
-        {python:q} scripts/annotate-haplotype-status.py \
-            --ancestral-sequences {input.nt_muts} \
-            --reference-node-name {params.reference_node_name:q} \
-            --output {output.node_data} 2>&1 | tee {log}
-        """
 
 rule translate:
     message: "Translating amino acid sequences"
@@ -661,45 +631,18 @@ rule recency:
             --output {output} 2>&1 | tee {log}
         """
 
-rule tip_frequencies:
-    message: "Estimating censored KDE frequencies for tips"
-    input:
-        tree = rules.refine.output.tree,
-        metadata = _get_metadata_by_wildcards
-    output:
-        tip_frequencies_json = "results/{build_name}/tip-frequencies.json"
-    log:
-        "logs/tip_frequencies_{build_name}.txt"
-    params:
-        min_date = config["frequencies"]["min_date"],
-        pivot_interval = config["frequencies"]["pivot_interval"],
-        narrow_bandwidth = config["frequencies"]["narrow_bandwidth"],
-        proportion_wide = config["frequencies"]["proportion_wide"]
-    conda: config["conda_environment"]
-    shell:
-        """
-        augur frequencies \
-            --method kde \
-            --metadata {input.metadata} \
-            --tree {input.tree} \
-            --min-date {params.min_date} \
-            --pivot-interval {params.pivot_interval} \
-            --narrow-bandwidth {params.narrow_bandwidth} \
-            --proportion-wide {params.proportion_wide} \
-            --output {output.tip_frequencies_json} 2>&1 | tee {log}
-        """
 
 def export_title(wildcards):
     # TODO: maybe we could replace this with a config entry for full/human-readable build name?
     location_name = wildcards.build_name
 
     if not location_name:
-        return "Genomic epidemiology of novel coronavirus"
+        return "Genomic epidemiology of SARS-CoV-2"
     elif location_name == "global":
-        return "Genomic epidemiology of novel coronavirus - Global subsampling"
+        return "Genomic epidemiology of SARS-CoV-2 - Global subsampling"
     else:
         location_title = location_name.replace("-", " ").title()
-        return f"Genomic epidemiology of novel coronavirus - {location_title}-focused subsampling"
+        return f"Genomic epidemiology of SARS-CoV-2 - {location_title}-focused subsampling"
 
 def _get_node_data_by_wildcards(wildcards):
     """Return a list of node data files to include for a given build's wildcards.
@@ -730,7 +673,7 @@ rule export:
         lat_longs = config["files"]["lat_longs"],
         description = config["files"]["description"]
     output:
-        auspice_json = "results/{build_name}/ncov_with_accessions.json"
+        auspice_json = "results/{build_name}/sarscov2_{build_name}.json"
     log:
         "logs/export_{build_name}.txt"
     params:
@@ -780,10 +723,8 @@ rule finalize:
     message: "Remove extraneous colorings for main build and move frequencies"
     input:
         auspice_json = rules.incorporate_travel_history.output.auspice_json,
-        frequencies = rules.tip_frequencies.output.tip_frequencies_json
     output:
-        auspice_json = "auspice/ncov_{build_name}.json",
-        tip_frequency_json = "auspice/ncov_{build_name}_tip-frequencies.json"
+        auspice_json = "auspice/sarscov2_{build_name}.json",
     log:
         "logs/fix_colorings_{build_name}.txt"
     conda: config["conda_environment"]
@@ -791,6 +732,5 @@ rule finalize:
         """
         {python:q} scripts/fix-colorings.py \
             --input {input.auspice_json} \
-            --output {output.auspice_json} 2>&1 | tee {log} &&
-        cp {input.frequencies} {output.tip_frequency_json}
+            --output {output.auspice_json} 2>&1 | tee {log}
         """

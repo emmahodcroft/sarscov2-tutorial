@@ -1,87 +1,112 @@
 # Preparing your data  
 
-To use Nextstrain, you'll need two files:  
+**We've prepared an example dataset in the `data` directory. If you'd like to move ahead with this tutorial with this example dataset, you can skip this section.
+If you'd like to use your own data, read on.**
+
+To use Nextstrain to analyze your own data, you'll need to prepare two files:  
 
 1. A `fasta` file with viral genomic sequences  
 2. A corresponding `tsv` file with metadata describing each sequence  
 
-**We've prepared an example dataset in the `data` directory. If you'd like to move ahead with this tutorial with this example dataset, you can skip this section.
-If you'd like to format your own data, read on.**
 
-## Quickstart: minimum requirements  
+We've created an example dataset in the `data` directory. This consists of a fasta file with viral genomes sourced from Genbank, and a corresponding TSV with metadata describing these sequences.
 
-Let's start with the simplest possible dataset.
 
-#### Minimum FASTA requirements  
+### Formatting your sequence data      
 
 The first 2 lines in `data/sequences.fasta` look like this:  
 ```
 >Wuhan-Hu-1/2019
-ATTAAAGGTTTATACCTTCCCAGGTAACAAACCAACCAACTTTCGATCTCTTGTAGATCTGTTCTCTAAACGAACTTTAAAATCTGTGTGGCTGTCACTCGGCTGCATGCTTAGTGCAC.....
+ATTAAAGGTTTATACCTTCCCAGGTAACAAACCAACCAACTTTCGATCTCTTGTAGATC.....
 ```
-**The first line is the `strain name` of the sequence.**
-Sequence names in FASTA files always start with the `>` character (this is not part of the name), and may not contain spaces or `()[]{}|#><`.
-Note that "strain" here carries no biological or functional significance and should be thought of as synonymous with sample.
+**The first line is the `strain` or `name` of the sequence.**
+Names in FASTA files always start with the `>` character (this is not part of the name), and may not contain spaces or `()[]{}|#><`.
+Note that "strain" here carries no biological or functional significance and should be thought of as synonymous with "sample."
 
-The sequence itself is a _[consensus genome](https://en.wikipedia.org/wiki/Consensus_sequence#:~:text=In%20molecular%20biology%20and%20bioinformatics,position%20in%20a%20sequence%20alignment.)_.
-**Sequences must be 27,000 bases in length with no more than 3,000 `N` (unknown) bases.**
+The sequence itself is a **[consensus genome](https://en.wikipedia.org/wiki/Consensus_sequence#:~:text=In%20molecular%20biology%20and%20bioinformatics,position%20in%20a%20sequence%20alignment.)**.
 
-
-#### Minimum metadata requirements  
-
-Nextstrain accommodates many kinds of metadata. We'll dive into all this later, but for now, let's start by looking at a minimal example of only the _required_ fields.
-
-The first 2 lines in `data/minimal_metadata.tsv` looks like this:  
-
-```
-strain	virus	date	region
-Australia/VIC05/2020	ncov	2020-03-05	Oceania
-```
-
-
-
-
-
-We've created an example dataset in the `data` directory. This consists of a fasta file with viral genomes sourced from Genbank, and a corresponding TSV with metadata describing these sequences.
-
-Let's look at the first entry in each
-
-
-
-## 1. Preparing a `fasta` file with sequences Metadata File
-
-
-Here we describe the format of the metadata which the pipeline expects.
-An example of this can be seen with the metadata [metadata.tsv](../data/metadata.tsv) for shared sequences which are used for the global analysis at [nextstrain.org/ncov/global](https://nextstrain.org/ncov/global).
-
-#### A few points before we dive in:
-- The _order_ of the fields doesn't matter; but if you are going to join your metadata with the global collection then it's easiest to keep them in the same order!
-- Not all fields are currently used, but this may change in the future.
-- A tab character -- `\t` -- separates columns. Read more about the TSV format [here](https://en.wikipedia.org/wiki/Tab-separated_values).
-- Data is case sensitive
-- The "geographic" columns, such as "region" and "country" will be used to plot the samples on the map.
-Adding a new value to these columns isn't a problem at all, but lat/long coordinates will also need to be defined for this in a separate file (documentation forthcoming).
-- A lot of these fields will be available to interact with as "colorings" of the data in Auspice (the interactive visualisation used within Nextstrain). However which exact columns are used, and which colours are used for each value is completely customisable (documentation forthcoming).
-- See also the [augur documentation](https://nextstrain-augur.readthedocs.io/en/stable/faq/metadata.html) relating to metadata formatting
-
-### Missing data:
-
-Missing data is to be expected for certain fields.
-In general, missing data is represented by an empty string or a question mark character.
-There is one important difference: if a discrete trait reconstruction (e.g. via `augur traits`) is to be run on this column, then a value of `?` will be inferred, whereas the empty string will be treated as missing data in the output. See below for how to represent uncertainty in sample collection date.
+**By default, sequences less than 27,000 bases in length or with more than 3,000 `N` (unknown) bases are omitted from the analysis.**
 
 ---
 
+### Formatting your metadata    
 
-Here's an example of the first few columns of the metadata for a single strain, including the header row. _(Spacing between columns here is adjusted for clarity, and only the first 6 of 23 columns are shown)._
+Nextstrain accommodates many kinds of metadata, so long as it is in a `TSV` format.
+A `TSV` is a text file, where each row (line) represents a sample and each column (separated by tabs) represents a field.  
+
+>If you're unfamiliar with TSV files, don't fret; it's straightforward to export these directly from Excel, which we'll cover shortly.
+
+Here's an example of the first few columns of the metadata for a single strain, including the header row.  
+_(Spacing between columns here is adjusted for clarity, and only the first 6 of 23 columns are shown)._
 ```
 strain              virus  gisaid_epi_isl  genbank_accession   date        region   ...
 NewZealand/01/2020  ncov   EPI_ISL_413490  ?                   2020-02-27  Oceania  ...
 ```
 
-In total there are 23 columns of metadata for each genome.
-Let's jump in and explore them, using the above example 👇
+In total there are 23 columns of metadata for each genome; see the last section for an in-depth walkthrough.
 
+
+#### Required metadata  
+A valid metadata file must include the following fields:  
+
+| Field | Example value | Description | Formatting |  
+|---|---|---|---|
+|`strain` or `name`| `NewZealand/01/2020` | Sample name / ID | Each header in the fasta file must exactly match a `strain` value in the metadata. Characters `()[]{}|#><` are disallowed |
+|`date` | `2020-02-27`, `2020-02-XX` | Date of _sampling_ | `YYYY-MM-DD`; ambiguities can be indicated with `XX`|  
+|`virus`|`ncov`|Pathogen name|Just needs to be consistent|
+|`region`|"Africa", "Asia", "Europe", "North America", "Oceania" or "South America"|Global region of _sampling_ ||
+
+
+#### Missing metadata:
+
+Missing data is to be expected for certain fields.
+In general, **missing data is represented by an empty string or a question mark character.**
+There is one important difference: if a discrete trait reconstruction (e.g. via `augur traits`) is to be run on this column, then a value of `?` will be inferred, whereas the empty string will be treated as missing data in the output. See below for how to represent uncertainty in sample collection date.
+
+
+#### General formatting tips:  
+- **The _order_ of the fields doesn't matter**; but if you are going to join your metadata with the global collection then it's easiest to keep them in the same order!
+- **Not all fields are currently used**, but this may change in the future.
+- Data is **case sensitive**
+- The **"geographic" columns, such as "region" and "country" will be used to plot the samples on the map**.
+Adding a new value to these columns isn't a problem at all, but there are a few extra steps to take; see the [customization guide](XXX).
+- **You can color by any of these fields in the Auspice visualization**. Which exact columns are used, and which colours are used for each value is completely customisable; see the [customization guide](XXX).
+
+
+#### Formatting metadata in Excel  
+You can also create a TSV file in Excel.  
+1. Create a spreadsheet where each row is a sample, and each column is a metadata field  
+2. Ensure your spreadsheet meets the requirements outlined above. Pay special attention to date formats; see [this guide to date formatting in Excel](https://support.microsoft.com/en-us/office/format-a-date-the-way-you-want-8e10019e-d5d8-47a1-ba95-db95123d273e?ui=en-us&rs=en-us&ad=us).  
+3. Click on `File > Save as`
+4. Choose `Text (Tab delimited) (*.txt)` and enter a filename ending in `.tsv`  
+
+
+---
+## Contextualizing your data   
+
+### Background / contextual sequences
+Making inferences about a sample's origin is strongly dependent on the makeup of your dataset: the model can't infer a transmission from an origin it doesn't have any (or enough) data from.
+
+To address this, we strongly recommend adding contextual background sequences to your dataset. To make this easier, we provide a continually-updated dataset, pre-formatted for Nextstrain, through [GISAID](https://gisaid.org). To download this dataset:  
+
+1. Log into GISAID's EpiCoV site
+2. Click "Downloads" to bring up a modal window  
+3. In this window click on "nextmeta" to download the file `nextstrain_metadata.tsv.bz2`.
+This should be decompressed and saved as `data/global_metadata.tsv`.
+4. Then, in this window click on "nextfasta" to download the file `nextstrain_sequences.fasta.bz2`.
+This should be decompressed and saved as `data/global_sequences.fasta`.
+
+![gisaid_downloads](images/gisaid_downloads.png)
+
+You can concatenate these files with your own; just make sure the TSV fields are in the same order.
+
+### Subsampling  
+
+We've outlined several methods for subsampling, including builds with a focus area + genetically similar contextual sequences, in the [next section](XXX).
+
+---
+
+## Appendix: in-depth guide to the standard Nextstrain metadata fields  
 **Column 1: `strain`**
 
 This needs to match the name of a sequence in the FASTA file exactly and must not contain characters such as spaces, or `()[]{}|#><`.
@@ -91,7 +116,7 @@ In our example we have a strain called "NewZealand/01/2020" so there should be a
 
 **Column 2: `virus`**
 
-Currently unused.
+Name of the pathogen.  
 
 **Column 3: `gisaid_epi_isl`**
 
@@ -108,6 +133,8 @@ Our example was collected on Feb 27, 2020 and is therefore represented as "2020-
 
 You can specify unknown dates or month by replacing the respected values by `XX` (ex: `2013-01-XX` or `2011-XX-XX`) and completely unknown dates can be shown with `20XX-XX-XX` (which does not restrict the sequence to being in the 21st century - they could be earlier).
 Please be aware that our current pipeline will filter out any genomes with an unknown date, however you can change this for your pipeline!
+
+See [this guide](https://support.microsoft.com/en-us/office/format-a-date-the-way-you-want-8e10019e-d5d8-47a1-ba95-db95123d273e?ui=en-us&rs=en-us&ad=us) to formatting dates in Excel
 
 **Column 6: `region`**
 

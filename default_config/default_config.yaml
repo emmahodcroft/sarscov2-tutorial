@@ -6,15 +6,11 @@
 # conda environment file to use by default
 conda_environment: "../envs/nextstrain.yaml"
 
-# S3 and slack options are related to Nextstrain live builds and don't need to be modified for local builds
-s3_staging_url: s3://nextstrain-staging
-slack_token: ~
-slack_channel: "#ncov-gisaid-updates"
-
 # These are the two main starting files for the run
-sequences: "data/sequences.fasta"
-metadata: "data/minimum_metadata.tsv"
+sequences: "data/example_sequences.fasta"
+metadata: "data/example_metadata.tsv"
 
+# Strain name for the sequence to use as a reference genome
 reference_node_name: "USA/WA1/2020"
 
 # Define files used for external configuration. Common examples consist of a
@@ -22,19 +18,16 @@ reference_node_name: "USA/WA1/2020"
 # align sequences to, colors for strain attributes in auspice, and auspice
 # configuration files.
 files:
-  include: "config/include.txt"
-  exclude: "config/exclude.txt"
-  reference: "config/reference.gb"
-  outgroup: "config/outgroup.fasta"
-  ordering: "config/ordering.tsv"
-  color_schemes: "config/color_schemes.tsv"
-  auspice_config: "config/auspice_config.json"
-  auspice_config_gisaid: "config/auspice_config_gisaid.json"
-  auspice_config_zh: "config/auspice_config_zh.json"
-  lat_longs: "config/lat_longs.tsv"
-  description: "config/description.md"
-  description_zh: "config/description_zh.md"
-  clades: "config/clades.tsv"
+  include: "default_config/include.txt"
+  exclude: "default_config/exclude.txt"
+  reference: "default_config/reference.gb"
+  outgroup: "default_config/outgroup.fasta"
+  ordering: "default_config/ordering.tsv"
+  color_schemes: "default_config/color_schemes.tsv"
+  auspice_config: "default_config/default_auspice_config.json"
+  lat_longs: "default_config/lat_longs.tsv"
+  description: "default_config/description.md"
+  clades: "default_config/clades.tsv"
 
 
 # Filter settings
@@ -77,20 +70,7 @@ refine:
 ancestral:
   inference: "joint"
 
-# Frequencies settings
-frequencies:
-  min_date: 2020.0
-
-  # Number of months between pivots
-  pivot_interval: 1
-
-  # KDE bandwidths in proportion of a year to use per strain.
-  narrow_bandwidth: 0.05
-  proportion_wide: 0.0
-
-#
 # Region-specific settings
-#
 traits:
   default:
     sampling_bias_correction: 2.5

@@ -1,8 +1,8 @@
 {
-  "title": "Genomic epidemiology of novel coronavirus",
+  "title": "Genomic epidemiology of SARS-CoV-2",
   "build_url": "https://github.com/nextstrain/ncov",
   "maintainers": [
-    {"name": "the Nextstrain team", "url": "https://nextstrain.org/"}
+    {"name": "Name", "url": "https://nextstrain.org/"}
   ],
   "colorings": [
     {
@@ -23,11 +23,6 @@
     {
       "key": "region",
       "title": "Region",
-      "type": "categorical"
-    },
-    {
-      "key": "host",
-      "title": "Host",
       "type": "categorical"
     },
     {
@@ -61,14 +56,6 @@
       "type": "categorical"
     },
     {
-      "key": "gisaid_epi_isl",
-      "type": "categorical"
-    },
-    {
-      "key": "genbank_accession",
-      "type": "categorical"
-    },
-    {
       "key": "country_exposure",
       "title": "Country of exposure",
       "type": "categorical"
@@ -91,9 +78,9 @@
     "region"
   ],
   "display_defaults": {
-    "color_by": "country",
+    "color_by": "division",
     "distance_measure": "num_date",
-    "geo_resolution": "country",
+    "geo_resolution": "division",
     "map_triplicate": true,
     "branch_label": "none"
   },
@@ -103,7 +90,6 @@
     "division",
     "country",
     "region",
-    "host",
     "author"
   ],
   "panels": [
