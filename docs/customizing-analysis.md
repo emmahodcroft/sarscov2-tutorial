@@ -33,6 +33,9 @@ location	Abondant	48.790785	1.420178
 
 ## Subsampling  
 
+### Basic subsampling  
+Reasonable defaults are pre-defined. You can find a [description of them here](XXX).
+
 ### Custom subsampling schemes
 We implement hierarchical subsampling by producing multiple samples at different geographic scales
 and merge these samples into one file for further analysis.
@@ -84,11 +87,12 @@ If you need parameters in a way that isn't represented by the configuration file
 
 
 ## Ancestral trait reconstruction  
-XXX
+
 Trait reconstruction is the process by which augur infers the most likely metadata value of an internal node. For example, if an internal node (which always represents a hypothesized, ancestral virus / case) has 3 descendants, all of which were isolated in Washington State, we might infer that the ancestor was most likely also circulating in Washington State (see ["Interpretation"](XXX) for more).
 
 For each build, you can specify which categorical metadata fields to use for trait reconstruction.
 
+<!-- TODO: can someone please check this section for me? the existing docs were unclear to me -->
 To specify this on a per-build basis, add a block like the following to your `my_analyses/<name>/builds.yaml` file:
 ```yaml
 traits:
