@@ -29,6 +29,8 @@ _11. Case studies: interpreting your data (coming soon!)_
 
 If you'd prefer, you can also start by running a basic analysis on the provided example data and/or visualizing the output with the [auspice.us](auspice.us) drag-and-drop viewer. If you get stuck at any point, you can find more detailed instructions in the full tutorial outlined above.
 
+We also recommend [this 1-hour video overview](https://youtu.be/m4_F2tG58Pc) by Heather Blankenship on how to deploy Nextstrain for a Public Health lab.
+
 #### 1. Clone this repository  
 ```
 git clone https://github.com/nextstrain/sarscov2-tutorial.git
